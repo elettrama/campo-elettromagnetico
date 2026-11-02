@@ -376,12 +376,12 @@
     <section id="prisma" class="interactive-card">
       <div class="section-header">
         <span class="section-tag" style="color: #ff3366;">Ottica Geometrica &amp; Dispersione</span>
-        <h2 class="section-title">4. Dispersione Cromatica &amp; Riflessione Totale nel Prisma di Newton</h2>
+        <h2 class="section-title">4. Dispersione Cromatica nel Prisma di Newton (Legge di Snell)</h2>
         <p class="section-subtitle">
-          Nel celebre trattato <em>Opticks</em> (1704), Isaac Newton dimostrò sperimentalmente che la luce bianca è policromatica. 
-          Nel prisma, ciascuna lunghezza d'onda subisce due rifrazioni governate rigorosamente dalla <strong>Legge di Snell-Cartesio</strong>. 
-          Variando l'angolo di incidenza $\theta_1$ o aumentando l'indice di rifrazione $n$, l'angolo alla seconda interfaccia supera l'angolo critico $\theta_c$, 
-          innescando il fenomeno della <strong>Riflessione Totale Interna (TIR)</strong>.
+          Il fascio di luce bianca monocromaticamente collimato incide sulla prima interfaccia con angolo $\theta_1$. 
+          In base alla <strong>Legge di Snell-Cartesio</strong>, ciascuna lunghezza d'onda subisce un differente rallentamento: 
+          la separazione cromatica ha origine <strong>esattamente nel punto di ingresso</strong>, generando i raggi colorati <strong>all'interno del corpo del prisma</strong>. 
+          Sulla seconda faccia, la rifrazione amplifica ulteriormente l'apertura angolare dell'arcobaleno.
         </p>
       </div>
 
@@ -391,13 +391,16 @@
           <canvas id="prismCanvas"></canvas>
           <div class="canvas-overlay-hints">
             <div class="overlay-badge">
-              <span class="badge-dot" style="background: #ffffff; box-shadow: 0 0 8px #fff;"></span> Fascio di Luce Bianca Incidente
+              <span class="badge-dot" style="background: #ffffff; box-shadow: 0 0 8px #fff;"></span> Fascio Bianco Incidente
             </div>
             <div class="overlay-badge">
-              <span class="badge-dot" style="background: #ff1111;"></span> Rosso: deviazione angolare minore
+              <span class="badge-dot" style="background: #00e640;"></span> Raggi Colorati Separati all'Interno del Prisma
             </div>
             <div class="overlay-badge">
-              <span class="badge-dot" style="background: #8b00ff;"></span> Violetto: deviazione angolare maggiore
+              <span class="badge-dot" style="background: #ff1111;"></span> Rosso: deviazione minore
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #8b00ff;"></span> Violetto: deviazione maggiore
             </div>
           </div>
         </div>
@@ -409,7 +412,7 @@
               <span>Angolo di Incidenza ($\theta_1$)</span>
               <span class="control-value" id="prismAngleVal">48.0°</span>
             </div>
-            <input type="range" id="prismAngle" min="15" max="75" value="48" step="0.5">
+            <input type="range" id="prismAngle" min="30" max="70" value="48" step="0.5">
           </div>
 
           <div class="control-group">
@@ -417,15 +420,15 @@
               <span>Indice di Rifrazione Base ($n$)</span>
               <span class="control-value" id="prismIndexVal">1.52</span>
             </div>
-            <input type="range" id="prismIndex" min="1.15" max="2.60" value="1.52" step="0.01">
+            <input type="range" id="prismIndex" min="1.30" max="1.80" value="1.52" step="0.01">
           </div>
 
           <div class="control-group">
             <div class="control-label">
-              <span>Dispersione di Cauchy ($B$ in $\mu\text{m}^2$)</span>
-              <span class="control-value" id="prismCauchyBVal">0.012</span>
+              <span>Separazione Spettrale (Dispersione Visiva)</span>
+              <span class="control-value" id="prismSpreadGainVal">2.0x</span>
             </div>
-            <input type="range" id="prismCauchyB" min="0.002" max="0.035" value="0.012" step="0.001">
+            <input type="range" id="prismSpreadGain" min="1.0" max="4.0" value="2.0" step="0.1">
           </div>
 
           <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Materiali Ottici di Riferimento:</div>
@@ -433,31 +436,29 @@
             <button class="btn" id="btnPresetWater">💧 Acqua (1.33)</button>
             <button class="btn" id="btnPresetCrown">🔬 Vetro Crown (1.52)</button>
             <button class="btn" id="btnPresetFlint">🧪 Vetro Flint (1.66)</button>
-            <button class="btn" id="btnPresetDiamond" style="border-color: #38bdf8; color: #38bdf8;">💎 Diamante (2.42 - TIR)</button>
           </div>
 
-          <!-- Badge dinamico dello stato ottico -->
-          <div id="prismStatusPill" class="emission-status-pill emission-yes" style="margin-top: 0.5rem;">
-            🌈 RIFRAZIONE DI SNELL &amp; DISPERSIONE SPETTRALE ATTIVA
-          </div>
-
-          <div class="metal-spec-box" style="margin-top: 0.3rem;">
+          <div class="metal-spec-box" style="margin-top: 0.5rem;">
             <div class="metal-spec-item">
-              <span class="label">Angolo Limite di Riflessione Totale ($\theta_c$):</span>
-              <span class="val text-propagation" id="prismCriticalAngle">41.1°</span>
+              <span class="label">Angolo Rifrazione Interno ($\theta_2$):</span>
+              <span class="val text-propagation" id="prismTheta2Val">29.3°</span>
             </div>
             <div class="metal-spec-item">
-              <span class="label">Deviazione Angolare Media ($\delta$):</span>
-              <span class="val text-magnetic" id="prismDevAngle">39.0°</span>
+              <span class="label">Angolo di Uscita nell'Aria ($\theta_4$):</span>
+              <span class="val text-magnetic" id="prismTheta4Val">51.0°</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Deviazione Angolare Totale ($\delta = \theta_1 + \theta_4 - A$):</span>
+              <span class="val text-electric" id="prismDevAngle">39.3°</span>
             </div>
           </div>
 
           <div class="formula-card" style="margin-top: 0.4rem;">
-            <div><strong>Legge di Snell-Cartesio:</strong></div>
-            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$n_1 \sin(\theta_1) = n_2(\lambda) \sin(\theta_2)$$</div>
-            <div><strong>Condizione di Riflessione Totale Interna:</strong></div>
-            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$\sin(\theta_3) > \frac{n_{\text{aria}}}{n(\lambda)} \implies \theta_3 > \theta_c = \arcsin\left(\frac{1}{n}\right)$$</div>
-            <div class="comment">Se l'angolo di incidenza interno $\theta_3$ supera l'angolo critico $\theta_c$, la luce non fuoriesce dal prisma ma subisce riflessione speculare al 100%.</div>
+            <div><strong>Prima Rifrazione (Ingresso nel Vetro):</strong></div>
+            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$n_{\text{aria}} \sin(\theta_1) = n(\lambda) \sin(\theta_2)$$</div>
+            <div><strong>Seconda Rifrazione (Uscita nell'Aria):</strong></div>
+            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$n(\lambda) \sin(\theta_3) = n_{\text{aria}} \sin(\theta_4)$$</div>
+            <div class="comment">Variando $\theta_1$, entrambi gli angoli $\theta_2(\lambda)$ e $\theta_4(\lambda)$ variano in tempo reale secondo Snell. Poiché $n(\lambda_{\text{violetto}}) > n(\lambda_{\text{rosso}})$, il violetto viene deviato con angolo maggiore già dentro il prisma.</div>
           </div>
         </div>
       </div>

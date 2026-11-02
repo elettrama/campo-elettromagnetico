@@ -25,15 +25,13 @@ Un'applicazione web interattiva, scientifica ed esteticamente moderna dedicata a
   - Vettore d'onda $k = 2\pi / \lambda$ in $\text{rad/m}$
 - Approfondimento di fisica pura: Radiazione di corpo nero (Planck & Wien a $5778\text{ K}$) e le 4 righe spettrali visibili della **Serie di Balmer dell'idrogeno** ($H_\alpha, H_\beta, H_\gamma, H_\delta$).
 
-### 4. 🔬 Dispersione Spettrale & Riflessione Totale Interna (Prisma di Newton)
-- Ray tracing vettoriale rigoroso basato sulla **Legge di Snell-Cartesio**:
-  $$n_1 \sin(\theta_1) = n_2(\lambda) \sin(\theta_2)$$
-- Formula di dispersione di Cauchy:
-  $$n(\lambda) = n_{\text{base}} + \frac{B}{\lambda^2}$$
-- Regolazione continua dell'angolo di incidenza $\theta_1$ ($15^\circ - 75^\circ$) e dell'indice di rifrazione base $n$ ($1.15 - 2.60$).
-- Simulazione della **Riflessione Totale Interna (TIR)** quando l'angolo alla seconda interfaccia supera l'angolo critico:
-  $$\sin(\theta_3) > \frac{n_{\text{aria}}}{n(\lambda)} \implies \theta_3 > \theta_c = \arcsin\left(\frac{1}{n}\right)$$
-- Preset ottici istantanei: Acqua ($n=1.33$), Vetro Crown ($n=1.52$), Vetro Flint ($n=1.66$), Diamante ($n=2.42$ con TIR).
+### 4. 🔬 Dispersione Spettrale nel Prisma di Newton (Legge di Snell)
+- Ray tracing rigoroso basato sulla **Legge di Snell-Cartesio**:
+  $$n_{\text{aria}} \sin(\theta_1) = n(\lambda) \sin(\theta_2)$$
+- **Separazione Cromatica Interna**: il fascio di luce bianca monocromaticamente collimato colpisce la prima superficie e si separa **immediatamente all'interno del prisma** nei 7 raggi cromatici spettrali.
+- **Dinamica Angolare Real-Time**: variando l'angolo di incidenza $\theta_1$, l'inclinazione del fascio bianco, gli angoli interni $\theta_2(\lambda)$ e l'angolo di uscita $\theta_4(\lambda)$ variano dinamicamente secondo la legge fisica di Snell.
+- Controllo dell'indice di rifrazione base $n$ e della dispersione cromatica visiva.
+- Preset per materiali reali: Acqua ($n=1.33$), Vetro Crown ($n=1.52$), Vetro Flint ($n=1.66$).
 
 ### 5. ⚡ Quanti di Luce & Effetto Fotoelettrico (Einstein 1905)
 - Simulatore di cella fototubo a vuoto con catodo emettitore e anodo.

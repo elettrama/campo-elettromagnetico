@@ -3,7 +3,7 @@
  * 1. Onde 3D Maxwell
  * 2. Spettro EM Universale
  * 3. Focus Ottico & Transizioni Atomiche
- * 4. Prisma di Newton: Ray Tracing Rigoroso con Legge di Snell & Riflessione Totale Interna (TIR)
+ * 4. Prisma di Newton: Rifrazione di Snell & Dispersione Spettrale Interna
  * 5. Effetto Fotoelettrico & Quanti di Luce (Einstein 1905)
  */
 
@@ -588,7 +588,7 @@ function initVisibleExplorer() {
 }
 
 /* ==========================================================================
-   4. SIMULATORE PRISMA DI NEWTON (RAY TRACING RIGOROSO CON SNELL & TIR)
+   4. SIMULATORE PRISMA DI NEWTON (RIFRAZIONE DI SNELL & RAGGI COLORATI INTERNI)
    ========================================================================== */
 class NewtonPrismSimulator {
   constructor(canvasId) {
@@ -596,11 +596,10 @@ class NewtonPrismSimulator {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
 
-    // Parametri ottici fisici
-    this.theta1Deg = 48;       // Angolo di incidenza θ1 rispetto alla normale della faccia 1 (gradi)
-    this.nBase = 1.52;         // Indice di rifrazione base (ad es. Vetro Crown)
-    this.cauchyB = 0.012;      // Coefficiente di dispersione di Cauchy B (in µm²)
-    this.beamThickness = 5;
+    // Parametri ottici
+    this.theta1Deg = 48.0;      // Angolo di incidenza θ1 (30° - 70°)
+    this.nBase = 1.52;          // Indice di rifrazione base (vetro tipico)
+    this.dispersionGain = 2.0;  // Guadagno di separazione cromatica visiva
 
     this.initCanvasSize();
     this.bindEvents();
@@ -611,7 +610,7 @@ class NewtonPrismSimulator {
     const rect = this.canvas.parentElement.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     this.width = rect.width || 720;
-    this.height = 420;
+    this.height = 430;
     this.canvas.width = this.width * dpr;
     this.canvas.height = this.height * dpr;
     this.canvas.style.height = `${this.height}px`;
@@ -644,53 +643,51 @@ class NewtonPrismSimulator {
       });
     }
 
-    const bSlider = document.getElementById('prismCauchyB');
-    if (bSlider) {
-      bSlider.addEventListener('input', (e) => {
-        this.cauchyB = parseFloat(e.target.value);
-        const valSpan = document.getElementById('prismCauchyBVal');
-        if (valSpan) valSpan.textContent = this.cauchyB.toFixed(3);
+    const gainSlider = document.getElementById('prismSpreadGain');
+    if (gainSlider) {
+      gainSlider.addEventListener('input', (e) => {
+        this.dispersionGain = parseFloat(e.target.value);
+        const valSpan = document.getElementById('prismSpreadGainVal');
+        if (valSpan) valSpan.textContent = `${this.dispersionGain.toFixed(1)}x`;
         this.render();
       });
     }
 
-    // Preset fisici
-    const setPreset = (angle, n, b) => {
+    const setPreset = (angle, n, gain) => {
       this.theta1Deg = angle;
       this.nBase = n;
-      this.cauchyB = b;
+      this.dispersionGain = gain;
 
       if (angleSlider) angleSlider.value = angle;
       if (nSlider) nSlider.value = n;
-      if (bSlider) bSlider.value = b;
+      if (gainSlider) gainSlider.value = gain;
 
       const angleVal = document.getElementById('prismAngleVal');
       const nVal = document.getElementById('prismIndexVal');
-      const bVal = document.getElementById('prismCauchyBVal');
+      const gainVal = document.getElementById('prismSpreadGainVal');
       if (angleVal) angleVal.textContent = `${angle.toFixed(1)}°`;
       if (nVal) nVal.textContent = n.toFixed(2);
-      if (bVal) bVal.textContent = b.toFixed(3);
+      if (gainVal) gainVal.textContent = `${gain.toFixed(1)}x`;
 
       this.render();
     };
 
     const btnCrown = document.getElementById('btnPresetCrown');
-    if (btnCrown) btnCrown.addEventListener('click', () => setPreset(48, 1.52, 0.012));
+    if (btnCrown) btnCrown.addEventListener('click', () => setPreset(48, 1.52, 2.0));
 
     const btnFlint = document.getElementById('btnPresetFlint');
-    if (btnFlint) btnFlint.addEventListener('click', () => setPreset(48, 1.66, 0.018));
+    if (btnFlint) btnFlint.addEventListener('click', () => setPreset(48, 1.66, 2.6));
 
     const btnWater = document.getElementById('btnPresetWater');
-    if (btnWater) btnWater.addEventListener('click', () => setPreset(52, 1.33, 0.006));
-
-    const btnDiamond = document.getElementById('btnPresetDiamond');
-    if (btnDiamond) btnDiamond.addEventListener('click', () => setPreset(40, 2.42, 0.024));
+    if (btnWater) btnWater.addEventListener('click', () => setPreset(52, 1.33, 1.5));
   }
 
-  // Formula di Cauchy: n(λ) = nBase + B / λ² (con λ in µm)
-  getRefractiveIndex(wlNm) {
-    const wlMicrons = wlNm / 1000;
-    return this.nBase + this.cauchyB / (wlMicrons * wlMicrons);
+  // Indice di rifrazione cromatico per ciascuna lunghezza d'onda
+  // Violetto (400 nm) ha indice maggiore del Rosso (700 nm)
+  getN(wlNm) {
+    const norm = (700 - wlNm) / 300; // 0 per rosso (700nm), 1 per violetto (400nm)
+    const deltaN = 0.022 * this.dispersionGain;
+    return this.nBase + (norm - 0.5) * deltaN;
   }
 
   // Intersezione tra semiretta (rx, ry) + t*(rdx, rdy) con segmento (sx1, sy1) -> (sx2, sy2)
@@ -712,12 +709,12 @@ class NewtonPrismSimulator {
   render() {
     this.ctx.clearRect(0, 0, this.width, this.height);
 
-    // Sfondo ottico da laboratorio scuro
-    this.ctx.fillStyle = '#03050a';
+    // Sfondo ottico scuro
+    this.ctx.fillStyle = '#05070d';
     this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // Geometria del prisma triangolare equilatero (angolo al vertice A = 60°)
-    const S = Math.min(this.width * 0.38, 230); // lunghezza lato
+    // Geometria del prisma triangolare equilatero (Angolo al vertice A = 60°)
+    const S = Math.min(this.width * 0.38, 240); // lato triangolo
     const H = S * (Math.sqrt(3) / 2);           // altezza triangolo
     const cx = this.width * 0.44;
     const cy = this.height * 0.52;
@@ -726,64 +723,52 @@ class NewtonPrismSimulator {
     const pLeft = { x: cx - S / 2, y: cy + (1 / 3) * H };
     const pRight = { x: cx + S / 2, y: cy + (1 / 3) * H };
 
-    // Faccia 1 (Sinistra): L -> T
-    // Tangente unitaria lungo la faccia verso l'alto
-    const u1 = { x: (pTop.x - pLeft.x) / S, y: (pTop.y - pLeft.y) / S }; // (0.5, -sqrt(3)/2)
-    // Normale unitaria interna (rivolta verso l'interno del prisma)
-    const nIn1 = { x: -u1.y, y: u1.x }; // (sqrt(3)/2, 0.5)
-    // Normale unitaria esterna
-    const nOut1 = { x: -nIn1.x, y: -nIn1.y };
+    // Faccia 1 (Sinistra): da pLeft a pTop
+    const u1 = { x: (pTop.x - pLeft.x) / S, y: (pTop.y - pLeft.y) / S }; // tangente unitaria
+    const nIn1 = { x: -u1.y, y: u1.x }; // normale unitaria diretta verso l'interno
 
-    // Faccia 2 (Destra): T -> R
-    const u2 = { x: (pRight.x - pTop.x) / S, y: (pRight.y - pTop.y) / S }; // (0.5, sqrt(3)/2)
-    const nOut2 = { x: u2.y, y: -u2.x }; // (sqrt(3)/2, -0.5) verso l'esterno
-    const nIn2 = { x: -nOut2.x, y: -nOut2.y };
+    // Faccia 2 (Destra): da pTop a pRight
+    const u2 = { x: (pRight.x - pTop.x) / S, y: (pRight.y - pTop.y) / S };
+    const nOut2 = { x: u2.y, y: -u2.x }; // normale unitaria diretta verso l'esterno
 
-    // Faccia 3 (Base): L -> R
-    const nOut3 = { x: 0, y: 1 }; // verso il basso esterno
-    const nIn3 = { x: 0, y: -1 };
-
-    // Punto di incidenza P1 sulla faccia sinistra (circa al 55% dall'alto per consentire un buon percorso interno)
-    const tHit = 0.52;
+    // Punto di incidenza P1 sulla faccia sinistra (al 45% dall'alto)
+    const tHit = 0.45;
     const P1 = {
-      x: pLeft.x + (pTop.x - pLeft.x) * tHit,
-      y: pLeft.y + (pTop.y - pLeft.y) * tHit
+      x: pLeft.x + (pTop.x - pLeft.x) * (1 - tHit),
+      y: pLeft.y + (pTop.y - pLeft.y) * (1 - tHit)
     };
 
-    // VETTORE DI INCIDENZA DEL RAGGIO BIANCO ESTERNO
-    // Angolo θ1 rispetto alla normale interna nIn1
+    // VETTORE DI INCIDENZA DEL FASCIO DI LUCE BIANCA
+    // θ1: Angolo tra il raggio e la normale interna nIn1
     const theta1Rad = (this.theta1Deg * Math.PI) / 180;
-    // Il raggio viaggia verso P1 con angolo θ1 rispetto a nIn1:
-    // dInc = cos(θ1)*nIn1 - sin(θ1)*u1
     const dInc = {
       x: Math.cos(theta1Rad) * nIn1.x - Math.sin(theta1Rad) * u1.x,
       y: Math.cos(theta1Rad) * nIn1.y - Math.sin(theta1Rad) * u1.y
     };
 
-    // Sorgente raggio bianco esterno
     const sourceLen = 220;
     const Psrc = {
       x: P1.x - dInc.x * sourceLen,
       y: P1.y - dInc.y * sourceLen
     };
 
-    // Disegna la normale ottica tratteggiata sulla faccia 1 per riferimento didattico
+    // Normale tratteggiata di riferimento alla faccia 1
     this.ctx.save();
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     this.ctx.lineWidth = 1;
     this.ctx.setLineDash([4, 4]);
     this.ctx.beginPath();
-    this.ctx.moveTo(P1.x - nIn1.x * 40, P1.y - nIn1.y * 40);
-    this.ctx.lineTo(P1.x + nIn1.x * 40, P1.y + nIn1.y * 40);
+    this.ctx.moveTo(P1.x - nIn1.x * 45, P1.y - nIn1.y * 45);
+    this.ctx.lineTo(P1.x + nIn1.x * 45, P1.y + nIn1.y * 45);
     this.ctx.stroke();
     this.ctx.restore();
 
-    // Disegna il raggio bianco incidente
+    // 1. DISEGNO DEL FASCIO DI LUCE BIANCA INCIDENTE (Si ferma esattamente su P1)
     this.ctx.save();
     this.ctx.strokeStyle = '#ffffff';
-    this.ctx.lineWidth = this.beamThickness;
-    this.ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-    this.ctx.shadowBlur = 12;
+    this.ctx.lineWidth = 4.5;
+    this.ctx.shadowColor = 'rgba(255, 255, 255, 0.95)';
+    this.ctx.shadowBlur = 14;
     this.ctx.beginPath();
     this.ctx.moveTo(Psrc.x, Psrc.y);
     this.ctx.lineTo(P1.x, P1.y);
@@ -791,10 +776,10 @@ class NewtonPrismSimulator {
 
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = '600 11px Inter, sans-serif';
-    this.ctx.fillText(`Luce Bianca Incidente (θ₁ = ${this.theta1Deg.toFixed(1)}°)`, Psrc.x + 10, Psrc.y - 12);
+    this.ctx.fillText(`Luce Bianca Incidente (θ₁ = ${this.theta1Deg.toFixed(1)}°)`, Psrc.x + 8, Psrc.y - 12);
     this.ctx.restore();
 
-    // Disegna il corpo geometrico del prisma
+    // Disegno del prisma di vetro trasparente
     this.ctx.save();
     this.ctx.beginPath();
     this.ctx.moveTo(pTop.x, pTop.y);
@@ -804,231 +789,145 @@ class NewtonPrismSimulator {
 
     const prismGrad = this.ctx.createLinearGradient(pLeft.x, pLeft.y, pRight.x, pRight.y);
     prismGrad.addColorStop(0, 'rgba(100, 150, 255, 0.08)');
-    prismGrad.addColorStop(0.5, 'rgba(180, 220, 255, 0.15)');
+    prismGrad.addColorStop(0.5, 'rgba(180, 220, 255, 0.16)');
     prismGrad.addColorStop(1, 'rgba(100, 150, 255, 0.06)');
     this.ctx.fillStyle = prismGrad;
     this.ctx.fill();
 
-    this.ctx.strokeStyle = 'rgba(200, 230, 255, 0.7)';
+    this.ctx.strokeStyle = 'rgba(200, 230, 255, 0.75)';
     this.ctx.lineWidth = 2;
-    this.ctx.shadowColor = 'rgba(150, 200, 255, 0.4)';
+    this.ctx.shadowColor = 'rgba(150, 200, 255, 0.35)';
     this.ctx.shadowBlur = 10;
     this.ctx.stroke();
     this.ctx.restore();
 
-    // Campioni spettrali (lunghezze d'onda da violetto a rosso)
+    // Punto bianco luminoso di ingresso sulla superficie
+    this.ctx.save();
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.shadowColor = '#ffffff';
+    this.ctx.shadowBlur = 10;
+    this.ctx.beginPath();
+    this.ctx.arc(P1.x, P1.y, 3, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+
+    // 7 Componenti spettrali (Violetto -> Rosso)
     const spectralBands = [
       { wl: 400, color: '#8b00ff', name: 'Violetto' },
       { wl: 445, color: '#2b35ff', name: 'Blu' },
-      { wl: 485, color: '#00c3ff', name: 'Ciano' },
-      { wl: 525, color: '#00ff40', name: 'Verde' },
-      { wl: 575, color: '#ffff00', name: 'Giallo' },
+      { wl: 485, color: '#00c8ff', name: 'Ciano' },
+      { wl: 525, color: '#00e640', name: 'Verde' },
+      { wl: 575, color: '#ffee00', name: 'Giallo' },
       { wl: 615, color: '#ff7700', name: 'Arancione' },
       { wl: 685, color: '#ff1111', name: 'Rosso' }
     ];
 
     const nAir = 1.00029;
-    let totalInternalReflectionCount = 0;
-    let avgDeviationDeg = 0;
-    let validRaysCount = 0;
+    let avgTheta2 = 0;
+    let avgTheta4 = 0;
+    let avgDeviation = 0;
+    const apexAngleRad = (60 * Math.PI) / 180;
 
-    // 1ª RIFRAZIONE (Aria -> Prisma) con Legge di Snell per ciascuna λ
+    // Traccia ciascun raggio cromatico:
+    // DALLA PRIMA SUPERFICIE P1, I RAGGI COLORATI SI SEPARANO ALL'INTERNO DEL PRISMA
     spectralBands.forEach((band) => {
-      const nGlass = this.getRefractiveIndex(band.wl);
+      const nGlass = this.getN(band.wl);
 
-      // Snell: nAir * sin(θ1) = nGlass * sin(θ2)
-      const sinTheta2 = (nAir * Math.sin(theta1Rad)) / nGlass;
-      if (Math.abs(sinTheta2) > 1) return; // Non accade da aria a vetro
-
+      // 1ª RIFRAZIONE DI SNELL ALL'INGRESSO: nAir * sin(θ1) = nGlass * sin(θ2)
+      const sinTheta2 = Math.min(0.999, (nAir * Math.sin(theta1Rad)) / nGlass);
       const theta2Rad = Math.asin(sinTheta2);
-      // Vettore dInside: cos(θ2)*nIn1 - sin(θ2)*u1
+      avgTheta2 += (theta2Rad * 180) / Math.PI;
+
+      // Vettore di propagazione dentro il prisma
       const dInside = {
         x: Math.cos(theta2Rad) * nIn1.x - Math.sin(theta2Rad) * u1.x,
         y: Math.cos(theta2Rad) * nIn1.y - Math.sin(theta2Rad) * u1.y
       };
 
-      // Trova intersezione del raggio interno con la faccia 2 (destra) o la faccia 3 (base)
-      const hitRight = this.intersectRaySegment(P1.x, P1.y, dInside.x, dInside.y, pTop.x, pTop.y, pRight.x, pRight.y);
-      const hitBase = this.intersectRaySegment(P1.x, P1.y, dInside.x, dInside.y, pLeft.x, pLeft.y, pRight.x, pRight.y);
-
-      let P2 = null;
-      let faceHit = null;
-
-      if (hitRight && (!hitBase || hitRight.t < hitBase.t)) {
-        P2 = hitRight;
-        faceHit = 'right';
-      } else if (hitBase) {
-        P2 = hitBase;
-        faceHit = 'base';
-      }
-
+      // Intersezione con la seconda faccia (faccia destra: pTop -> pRight)
+      const P2 = this.intersectRaySegment(P1.x, P1.y, dInside.x, dInside.y, pTop.x, pTop.y, pRight.x, pRight.y);
       if (!P2) return;
 
-      // Disegna il percorso interno del raggio cromatico
+      // =========================================================================
+      // DISEGNO RAGGIO COLORATO DENTRO IL PRISMA (Parte da P1 e arriva a P2!)
+      // =========================================================================
       this.ctx.save();
       this.ctx.strokeStyle = band.color;
-      this.ctx.lineWidth = 2.0;
+      this.ctx.lineWidth = 2.2;
+      this.ctx.shadowColor = band.color;
+      this.ctx.shadowBlur = 8;
       this.ctx.beginPath();
       this.ctx.moveTo(P1.x, P1.y);
       this.ctx.lineTo(P2.x, P2.y);
       this.ctx.stroke();
       this.ctx.restore();
 
-      // 2ª INTERFACCIA: Controllo Riflessione Totale Interna (TIR) o Rifrazione
-      if (faceHit === 'right') {
-        // Angolo di incidenza θ3 rispetto alla normale esterna nOut2
-        // cos(θ3) = dInside · nOut2
-        const cosTheta3 = dInside.x * nOut2.x + dInside.y * nOut2.y;
-        const sinTheta3 = Math.sqrt(Math.max(0, 1 - cosTheta3 * cosTheta3));
+      // 2ª RIFRAZIONE DI SNELL ALL'USCITA:
+      // Angolo θ3 rispetto alla normale esterna nOut2
+      const cosTheta3 = dInside.x * nOut2.x + dInside.y * nOut2.y;
+      const sinTheta3 = Math.sqrt(Math.max(0, 1 - cosTheta3 * cosTheta3));
 
-        // Angolo critico: sin(θc) = nAir / nGlass
-        const sinCritical = nAir / nGlass;
+      // Snell: nGlass * sin(θ3) = nAir * sin(θ4)
+      const sinTheta4 = Math.min(0.998, (nGlass * sinTheta3) / nAir);
+      const theta4Rad = Math.asin(sinTheta4);
+      const cosTheta4 = Math.cos(theta4Rad);
 
-        if (sinTheta3 > sinCritical || cosTheta3 <= 0) {
-          // ==========================================
-          // RIFLESSIONE TOTALE INTERNA (TIR)
-          // ==========================================
-          totalInternalReflectionCount++;
+      avgTheta4 += (theta4Rad * 180) / Math.PI;
 
-          // Vettore riflesso: dRefl = dInside - 2*(dInside · nOut2)*nOut2
-          const dRefl = {
-            x: dInside.x - 2 * cosTheta3 * nOut2.x,
-            y: dInside.y - 2 * cosTheta3 * nOut2.y
-          };
+      // Deviazione totale del raggio: δ = θ1 + θ4 - A
+      const deviationRad = theta1Rad + theta4Rad - apexAngleRad;
+      avgDeviation += (deviationRad * 180) / Math.PI;
 
-          // Il raggio riflesso internamente prosegue verso la base del prisma (pLeft -> pRight)
-          const hitBaseAfterTIR = this.intersectRaySegment(P2.x, P2.y, dRefl.x, dRefl.y, pLeft.x, pLeft.y, pRight.x, pRight.y);
+      // Vettore dOut: fuoriesce dal punto P2 aprendosi nel ventaglio di colori
+      const dTang = {
+        x: dInside.x - cosTheta3 * nOut2.x,
+        y: dInside.y - cosTheta3 * nOut2.y
+      };
+      const lenTang = Math.hypot(dTang.x, dTang.y) || 1;
+      const uTang = { x: dTang.x / lenTang, y: dTang.y / lenTang };
 
-          this.ctx.save();
-          this.ctx.strokeStyle = band.color;
-          this.ctx.shadowColor = band.color;
-          this.ctx.shadowBlur = 10;
-          this.ctx.lineWidth = 2.4;
+      const dOut = {
+        x: cosTheta4 * nOut2.x + Math.sin(theta4Rad) * uTang.x,
+        y: cosTheta4 * nOut2.y + Math.sin(theta4Rad) * uTang.y
+      };
 
-          if (hitBaseAfterTIR) {
-            // Disegna raggio riflesso che colpisce la base
-            this.ctx.beginPath();
-            this.ctx.moveTo(P2.x, P2.y);
-            this.ctx.lineTo(hitBaseAfterTIR.x, hitBaseAfterTIR.y);
-            this.ctx.stroke();
+      // Disegna il raggio rifratto che si allontana dal prisma nell'aria
+      const rayLen = this.width - P2.x + 30;
+      const Pout = {
+        x: P2.x + dOut.x * rayLen,
+        y: P2.y + dOut.y * rayLen
+      };
 
-            // Rifrazione all'uscita dalla base verso il basso
-            const cosBaseInc = dRefl.x * nOut3.x + dRefl.y * nOut3.y;
-            const sinBaseInc = Math.sqrt(Math.max(0, 1 - cosBaseInc * cosBaseInc));
-            const sinBaseRef = (nGlass * sinBaseInc) / nAir;
-
-            if (sinBaseRef <= 1) {
-              const thetaBaseRef = Math.asin(sinBaseRef);
-              // Raggio che fuoriesce dalla base
-              const dBaseOut = {
-                x: (dRefl.x > 0 ? 1 : -1) * Math.sin(thetaBaseRef),
-                y: Math.cos(thetaBaseRef)
-              };
-
-              this.ctx.beginPath();
-              this.ctx.moveTo(hitBaseAfterTIR.x, hitBaseAfterTIR.y);
-              this.ctx.lineTo(hitBaseAfterTIR.x + dBaseOut.x * 120, hitBaseAfterTIR.y + dBaseOut.y * 120);
-              this.ctx.stroke();
-            }
-          } else {
-            // Riflessione senza colpire la base nel disegno
-            this.ctx.beginPath();
-            this.ctx.moveTo(P2.x, P2.y);
-            this.ctx.lineTo(P2.x + dRefl.x * 140, P2.y + dRefl.y * 140);
-            this.ctx.stroke();
-          }
-          this.ctx.restore();
-
-        } else {
-          // ==========================================
-          // RIFRAZIONE DI SNELL REGOLARE FUORI DAL PRISMA
-          // ==========================================
-          const sinTheta4 = (nGlass * sinTheta3) / nAir;
-          const theta4Rad = Math.asin(Math.min(1, sinTheta4));
-          const cosTheta4 = Math.cos(theta4Rad);
-
-          // Componente tangenziale unitaria
-          const dTang = {
-            x: dInside.x - cosTheta3 * nOut2.x,
-            y: dInside.y - cosTheta3 * nOut2.y
-          };
-          const lenTang = Math.hypot(dTang.x, dTang.y) || 1;
-          const uTang = { x: dTang.x / lenTang, y: dTang.y / lenTang };
-
-          // Vettore dOut: cos(θ4)*nOut2 + sin(θ4)*uTang
-          const dOut = {
-            x: cosTheta4 * nOut2.x + Math.sin(theta4Rad) * uTang.x,
-            y: cosTheta4 * nOut2.y + Math.sin(theta4Rad) * uTang.y
-          };
-
-          // Angolo di deviazione totale: δ = θ1 + θ4 - A
-          const apexA = (60 * Math.PI) / 180;
-          const deviationRad = theta1Rad + theta4Rad - apexA;
-          avgDeviationDeg += (deviationRad * 180) / Math.PI;
-          validRaysCount++;
-
-          // Disegna raggio spettrale rifratto all'esterno
-          const rayLen = this.width - P2.x + 30;
-          const Pout = {
-            x: P2.x + dOut.x * rayLen,
-            y: P2.y + dOut.y * rayLen
-          };
-
-          this.ctx.save();
-          this.ctx.strokeStyle = band.color;
-          this.ctx.shadowColor = band.color;
-          this.ctx.shadowBlur = 12;
-          this.ctx.lineWidth = 2.6;
-          this.ctx.beginPath();
-          this.ctx.moveTo(P2.x, P2.y);
-          this.ctx.lineTo(Pout.x, Pout.y);
-          this.ctx.stroke();
-          this.ctx.restore();
-        }
-      }
+      this.ctx.save();
+      this.ctx.strokeStyle = band.color;
+      this.ctx.shadowColor = band.color;
+      this.ctx.shadowBlur = 12;
+      this.ctx.lineWidth = 2.6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(P2.x, P2.y);
+      this.ctx.lineTo(Pout.x, Pout.y);
+      this.ctx.stroke();
+      this.ctx.restore();
     });
 
-    // Calcolo angolo critico limite per nBase
-    const criticalAngleDeg = (Math.asin(nAir / this.nBase) * 180) / Math.PI;
-    const isTIR = totalInternalReflectionCount === spectralBands.length;
+    const count = spectralBands.length;
+    avgTheta2 /= count;
+    avgTheta4 /= count;
+    avgDeviation /= count;
 
-    // Aggiornamento interfaccia metrica
-    const elCritAngle = document.getElementById('prismCriticalAngle');
+    // Aggiorna metriche numeriche dell'interfaccia
+    const elTheta2 = document.getElementById('prismTheta2Val');
+    const elTheta4 = document.getElementById('prismTheta4Val');
     const elDevAngle = document.getElementById('prismDevAngle');
-    const elStatus = document.getElementById('prismStatusPill');
 
-    if (elCritAngle) elCritAngle.textContent = `${criticalAngleDeg.toFixed(1)}°`;
-    if (elDevAngle) {
-      if (validRaysCount > 0) {
-        elDevAngle.textContent = `${(avgDeviationDeg / validRaysCount).toFixed(1)}°`;
-      } else {
-        elDevAngle.textContent = 'N/A (Riflessione Totale)';
-      }
-    }
+    if (elTheta2) elTheta2.textContent = `${avgTheta2.toFixed(1)}°`;
+    if (elTheta4) elTheta4.textContent = `${avgTheta4.toFixed(1)}°`;
+    if (elDevAngle) elDevAngle.textContent = `${avgDeviation.toFixed(1)}°`;
 
-    if (elStatus) {
-      if (isTIR) {
-        elStatus.className = 'emission-status-pill emission-no';
-        elStatus.textContent = '⚡ RIFLESSIONE TOTALE INTERNA (TIR ATTIVA: θ₃ > θ_c)';
-      } else if (totalInternalReflectionCount > 0) {
-        elStatus.className = 'emission-status-pill';
-        elStatus.style.background = 'rgba(234, 179, 8, 0.2)';
-        elStatus.style.color = '#facc15';
-        elStatus.style.border = '1px solid rgba(234, 179, 8, 0.4)';
-        elStatus.textContent = '⚠️ RIFLESSIONE TOTALE PARZIALE (Solo alcune lunghezze d\'onda)';
-      } else {
-        elStatus.className = 'emission-status-pill emission-yes';
-        elStatus.style.background = '';
-        elStatus.style.color = '';
-        elStatus.style.border = '';
-        elStatus.textContent = '🌈 RIFRAZIONE DI SNELL & DISPERSIONE SPETTRALE ATTIVA';
-      }
-    }
-
-    // Firma didattica sul canvas
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    this.ctx.font = '600 10px monospace';
-    this.ctx.fillText(`DISPERSIONE OTTICA DI SNELL — n = ${this.nBase.toFixed(2)} | θ₁ = ${this.theta1Deg.toFixed(1)}° | θ_crit = ${criticalAngleDeg.toFixed(1)}°`, 20, this.height - 18);
+    // Didascalia sul Canvas
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    this.ctx.font = '600 11px Inter, sans-serif';
+    this.ctx.fillText(`Dispersione Ottica: θ₁ = ${this.theta1Deg.toFixed(1)}° | θ₂ ≈ ${avgTheta2.toFixed(1)}° | Deviazione δ ≈ ${avgDeviation.toFixed(1)}°`, 20, this.height - 18);
   }
 }
 
