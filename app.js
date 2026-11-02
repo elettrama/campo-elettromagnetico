@@ -1178,4 +1178,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initVisibleExplorer();
   new DarkSidePrismSimulator('prismCanvas');
   window.photoelectricSim = new PhotoelectricSimulator('photoelectricCanvas');
+
+  // Compilazione KaTeX se non ancora attivata da onload
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '\\[', right: '\\]', display: true}
+      ],
+      throwOnError: false
+    });
+  }
 });

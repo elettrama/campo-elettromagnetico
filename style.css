@@ -960,3 +960,26 @@ footer .summary-table td.code {
 .text-magnetic { color: var(--color-magnetic); }
 .text-propagation { color: var(--color-propagation); }
 .font-mono { font-family: var(--font-mono); }
+
+/* KaTeX Math Styling */
+.katex {
+  font-size: 1.05em;
+  color: #f1f5f9;
+}
+
+.katex-display {
+  margin: 0.75rem 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0;
+}
+
+.formula-card .katex {
+  color: #79c0ff;
+}
+
+.stat-card .katex {
+  color: #e2e8f0;
+  font-size: 0.95em;
+}
+
