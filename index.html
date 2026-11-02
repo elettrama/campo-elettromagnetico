@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Il Campo Elettromagnetico & Lo Spettro Visibile</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Fonts Google ad alta leggibilità -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Barra di navigazione -->
+  <header class="navbar">
+    <a href="#" class="logo-container">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M2 12c3-6 6-6 9 0s6 6 9 0" />
+        </svg>
+      </div>
+      <div class="logo-text">Cosmo<span>EM</span></div>
+    </a>
+    <nav class="nav-links">
+      <a href="#anatomia">Onda 3D</a>
+      <a href="#spettro">Spettro Completo</a>
+      <a href="#visibile">Focus Visibile</a>
+      <a href="#prisma">Prisma Dark Side</a>
+      <a href="#fotoelettrico">Effetto Fotoelettrico</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="badge-pill">Elettrodinamica Classica &amp; Ottica Quantistica</div>
+    <h1 class="gradient-title">Il Campo Elettromagnetico &amp;<br>Lo Spettro Visibile</h1>
+    <p class="lead">
+      Dall'unificazione elettromagnetica di James Clerk Maxwell alla quantizzazione del fotone di Albert Einstein: 
+      un viaggio rigoroso nella fisica delle onde, nella dispersione cromatica e nell'interazione fondamentale radiazione-materia.
+    </p>
+
+    <!-- Statistiche e Costanti Fisiche Chiave -->
+    <div class="quick-stats-grid">
+      <div class="stat-card">
+        <span class="label">Velocità nel vuoto (c)</span>
+        <div class="value">299 792 458 <span class="unit">m/s</span></div>
+        <div class="desc">Costante universale: c = 1 / &radic;(&epsilon;₀&mu;₀)</div>
+      </div>
+      <div class="stat-card">
+        <span class="label">Banda Visibile (&lambda;)</span>
+        <div class="value">380 – 750 <span class="unit">nm</span></div>
+        <div class="desc">La finestra delle transizioni elettroniche atomiche</div>
+      </div>
+      <div class="stat-card">
+        <span class="label">Frequenze ottiche (&nu;)</span>
+        <div class="value">400 – 790 <span class="unit">THz</span></div>
+        <div class="desc">Centinaia di migliaia di miliardi di oscillazioni al secondo</div>
+      </div>
+      <div class="stat-card">
+        <span class="label">Energia Fotonica (E)</span>
+        <div class="value">1.65 – 3.26 <span class="unit">eV</span></div>
+        <div class="desc">E = h&nu; &bull; Serie di Balmer e soglia fotoelettrica</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- SEZIONE 1: ANATOMIA DELL'ONDA ELETTROMAGNETICA -->
+    <section id="anatomia" class="interactive-card">
+      <div class="section-header">
+        <span class="section-tag">Elettrodinamica Fondamentale</span>
+        <h2 class="section-title">1. Anatomia di un'Onda Elettromagnetica 3D</h2>
+        <p class="section-subtitle">
+          Un'onda elettromagnetica è un'oscillazione autosostenuta nello spazio-tempo: la variazione temporale del campo magnetico genera una rotazione di campo elettrico 
+          (&nabla;&times;E = -&part;B/&part;t), la quale a sua volta induce un campo magnetico (&nabla;&times;B = &mu;₀&epsilon;₀&part;E/&part;t). 
+          Ruota la camera trascinando con il mouse per osservare la reciproca ortogonalità nello spazio 3D.
+        </p>
+      </div>
+
+      <div class="simulator-layout">
+        <!-- Canvas Interattivo 3D -->
+        <div class="canvas-container">
+          <canvas id="waveCanvas"></canvas>
+          <div class="canvas-overlay-hints">
+            <div class="overlay-badge">
+              <span class="badge-dot dot-red"></span> E: Campo Elettrico (V/m)
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot dot-blue"></span> B: Campo Magnetico (Tesla)
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot dot-yellow"></span> k: Direzione di Propagazione
+            </div>
+            <div class="overlay-badge" style="color: #9aa5be;">
+              🖱️ Trascina per ruotare la visuale 3D
+            </div>
+          </div>
+        </div>
+
+        <!-- Pannello Controlli Onda -->
+        <div class="control-panel">
+          <div class="control-group">
+            <div class="control-label">
+              <span>Lunghezza d'Onda visiva (&lambda;)</span>
+              <span class="control-value" id="waveLambdaVal">60 px</span>
+            </div>
+            <input type="range" id="waveLambda" min="30" max="140" value="60" step="2">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Velocità Temporale</span>
+              <span class="control-value" id="waveSpeedVal">1.0x</span>
+            </div>
+            <input type="range" id="waveSpeed" min="0.2" max="2.5" value="1.0" step="0.1">
+          </div>
+
+          <hr style="border-color: var(--border-subtle); margin: 0.2rem 0;">
+
+          <label class="toggle-switch-label">
+            <span>Visualizza Campo Elettrico (<span class="text-electric">&vec;E</span>)</span>
+            <input type="checkbox" id="toggleE" class="toggle-checkbox" checked>
+          </label>
+
+          <label class="toggle-switch-label">
+            <span>Visualizza Campo Magnetico (<span class="text-magnetic">&vec;B</span>)</span>
+            <input type="checkbox" id="toggleB" class="toggle-checkbox" checked>
+          </label>
+
+          <label class="toggle-switch-label">
+            <span>Vettori Istantanei (frecce)</span>
+            <input type="checkbox" id="toggleVectors" class="toggle-checkbox" checked>
+          </label>
+
+          <div class="button-row" style="margin-top: 0.5rem;">
+            <button class="btn" id="btnPauseWave">⏸ Pausa</button>
+            <button class="btn" id="btnResetWaveView">🔄 Reset Vista 3D</button>
+          </div>
+
+          <div class="formula-card">
+            <div><strong>Relazioni di Maxwell nel vuoto:</strong></div>
+            <div>c = 1 / &radic;(&epsilon;₀ &mu;₀) &approx; 2.998 &times; 10⁸ m/s</div>
+            <div>|E| = c &middot; |B|</div>
+            <div class="comment">&Epsilon;₀: permettività dielettrica, &Mu;₀: permeabilità magnetica</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spiegazione teorica dettagliata -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+        <div class="info-box electric">
+          <strong>Natura Trasversale e Polarizzazione:</strong>
+          A differenza delle onde meccaniche acustiche (che sono longitudinali e richiedono un mezzo materiale), le onde elettromagnetiche sono 
+          <strong>trasversali</strong>. I vettori &vec;E e &vec;B oscillano su piani perpendicolari tra loro e sono entrambi rigorosamente 
+          perpendicolari alla traiettoria di avanzamento &vec;k.
+        </div>
+        <div class="info-box magnetic">
+          <strong>Il Vettore di Poynting (&vec;S):</strong>
+          Definito da &vec;S = (1/&mu;₀) &vec;E &times; &vec;B, rappresenta la densità di flusso di potenza dell'onda (espressa in W/m²). 
+          Indica sia la direzione di propagazione sia la quantità di energia e quantità di moto irradiate nel vuoto per unità di tempo e superficie.
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 2: LO SPETTRO ELETTROMAGNETICO COMPLETO -->
+    <section id="spettro" class="interactive-card">
+      <div class="section-header">
+        <span class="section-tag">Spettrometria Universale</span>
+        <h2 class="section-title">2. La Scala del Cosmo: Lo Spettro Elettromagnetico</h2>
+        <p class="section-subtitle">
+          Dalle colossali onde radio chilometriche fino ai piccolissimi e devastanti raggi gamma subatomici: 
+          la radiazione ottica visibile occupa una porzione ristrettissima compresa tra 380 e 750 nanometri. 
+          <strong>Clicca sulle diverse bande</strong> per esplorare parametri fisici, ordini di grandezza e applicazioni sperimentali.
+        </p>
+      </div>
+
+      <div class="spectrum-explorer">
+        <!-- Barra Interattiva dello Spettro -->
+        <div class="spectrum-track-container">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">
+            <span>&larr; ONDE LUNGHE / BASSA ENERGIA (FOTONI NON IONIZZANTI)</span>
+            <span>ALTA ENERGIA / ONDE CORTE (RADIAZIONI IONIZZANTI) &rarr;</span>
+          </div>
+
+          <div class="spectrum-scale">
+            <div class="spectrum-segment seg-radio" data-band="radio">Radio</div>
+            <div class="spectrum-segment seg-microwave" data-band="microwave">Microonde</div>
+            <div class="spectrum-segment seg-infrared" data-band="infrared">Infrarosso</div>
+            <div class="spectrum-segment seg-visible active" data-band="visible">Visibile</div>
+            <div class="spectrum-segment seg-uv" data-band="uv">Ultravioletto</div>
+            <div class="spectrum-segment seg-xray" data-band="xray">Raggi X</div>
+            <div class="spectrum-segment seg-gamma" data-band="gamma">Raggi &gamma;</div>
+          </div>
+        </div>
+
+        <!-- Scheda Dettaglio Banda Selezionata -->
+        <div class="spectrum-details-grid">
+          <div class="band-info-card">
+            <div class="band-title-bar">
+              <h3 class="band-name" id="bandName">Luce Visibile</h3>
+              <div class="band-wavelength" id="bandLambda">380 nm – 750 nm</div>
+            </div>
+
+            <p id="bandDesc" style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6;">
+              Intervallo energetico che corrisponde esattamente ai salti quantici degli elettroni di valenza negli atomi e nelle molecole (Serie di Balmer dell'idrogeno).
+            </p>
+
+            <div class="band-metrics">
+              <div class="band-metric-item">
+                <div class="m-label">Frequenza (&nu;)</div>
+                <div class="m-val" id="bandFreq">400 – 790 THz</div>
+              </div>
+              <div class="band-metric-item">
+                <div class="m-label">Energia Fotone (E)</div>
+                <div class="m-val" id="bandEnergy">1.65 – 3.26 eV</div>
+              </div>
+              <div class="band-metric-item">
+                <div class="m-label">Scala Spaziale (&lambda;)</div>
+                <div class="m-val" id="bandScale">Reticoli di diffrazione</div>
+              </div>
+            </div>
+
+            <div class="band-scale-comp">
+              <span style="color: var(--color-propagation);">✦</span>
+              <span><strong>Sorgenti Fisiche:</strong> <span id="bandSources">Fotosfera solare (~5778 K), lampade a scarica, laser He-Ne e semiconduttori</span></span>
+            </div>
+          </div>
+
+          <div class="band-info-card" style="border-left: 3px solid var(--color-magnetic);">
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.6rem; color: var(--text-main);">Dispositivi &amp; Tecnologie Ottiche</h4>
+            <p id="bandApps" style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6;">
+              Laser a stato solido, spettroscopia atomica ad alta risoluzione, interferometria laser (LIGO), fibre ottiche monomodo.
+            </p>
+            <div style="margin-top: 1.2rem; background: rgba(0,0,0,0.35); padding: 0.8rem; border-radius: 8px; font-size: 0.82rem; color: #a5b4fc;">
+              💡 <strong>Risoluzione di Diffrazione (Limite di Abbe):</strong> In un sistema ottico ideale, la massima risoluzione spaziale ottenibile è limitata dalla lunghezza d'onda: 
+              <code>d = &lambda; / (2 NA)</code>. Con la luce visibile (~500 nm), il limite fondamentale di focalizzazione è di circa 200–250 nanometri.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 3: FOCUS SULLA LUCE VISIBILE & FISICA ATOMICA -->
+    <section id="visibile" class="interactive-card">
+      <div class="section-header">
+        <span class="section-tag" style="color: #ff3366;">Fisica dei Quanti &amp; Spettroscopia</span>
+        <h2 class="section-title">3. Il Focus: La Luce Visibile (380 – 750 nm)</h2>
+        <p class="section-subtitle">
+          Esplora la relazione quantistica tra lunghezza d'onda, frequenza ed energia del singolo quanto di luce (fotone). 
+          Muovi il cursore per generare qualsiasi frequenza ottica monocromatica.
+        </p>
+      </div>
+
+      <div class="visible-deep-dive">
+        <!-- Slider Lunghezza d'Onda Continuo con Gradiente Fisico -->
+        <div>
+          <div class="rainbow-slider-bar"></div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <span>380 nm (Violetto)</span>
+            <span>450 nm (Blu)</span>
+            <span>500 nm (Ciano)</span>
+            <span>530 nm (Verde)</span>
+            <span>580 nm (Giallo)</span>
+            <span>620 nm (Arancione)</span>
+            <span>750 nm (Rosso)</span>
+          </div>
+          <input type="range" id="visibleSlider" min="380" max="750" value="532" step="1">
+        </div>
+
+        <!-- Scheda Preview Colore e Calcoli Fisici Istantanei -->
+        <div class="wavelength-picker-card">
+          <div class="color-preview-box" id="colorPreviewBox">
+            <div class="color-preview-name" id="colorPreviewName">Verde</div>
+            <div class="color-preview-hex" id="colorPreviewHex">HEX: #00FF44</div>
+          </div>
+
+          <div class="visible-math-grid">
+            <div class="visible-math-item">
+              <div class="v-label">Lunghezza d'Onda (&lambda;)</div>
+              <div class="v-val text-propagation" id="valWl">532 nm</div>
+              <div class="v-sub">0.532 &mu;m &bull; 5320 &Aring;</div>
+            </div>
+
+            <div class="visible-math-item">
+              <div class="v-label">Frequenza dell'Onda (&nu;)</div>
+              <div class="v-val text-magnetic" id="valFreq">563.52 THz</div>
+              <div class="v-sub">&nu; = c / &lambda;</div>
+            </div>
+
+            <div class="visible-math-item">
+              <div class="v-label">Energia del Fotone (E)</div>
+              <div class="v-val text-electric" id="valEnergyEv">2.330 eV</div>
+              <div class="v-sub" id="valEnergyJ">3.733 &times; 10⁻¹⁹ J</div>
+            </div>
+
+            <div class="visible-math-item">
+              <div class="v-label">Periodo Temporale (T)</div>
+              <div class="v-val" id="valPeriod" style="color: #a78bfa;">1.77 fs</div>
+              <div class="v-sub">Femtosecondi (10⁻¹⁵ s)</div>
+            </div>
+
+            <div class="visible-math-item">
+              <div class="v-label">Vettore d'Onda (k)</div>
+              <div class="v-val" id="valK" style="color: #34d399;">11.81 &times; 10⁶ rad/m</div>
+              <div class="v-sub">k = 2&pi; / &lambda;</div>
+            </div>
+
+            <div class="visible-math-item">
+              <div class="v-label">Relazione di Planck-Einstein</div>
+              <div class="v-val" style="color: #facc15; font-size: 1.05rem;">E = h &times; &nu; = hc / &lambda;</div>
+              <div class="v-sub">Dualismo onda-corpuscolo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approfondimento di Fisica Atomica sul Visibile -->
+        <h3 style="font-size: 1.35rem; margin-top: 0.5rem; color: var(--text-main);">
+          La Fisica della Finestra Ottica: Corpo Nero, Spettri Atomici e Quanti
+        </h3>
+
+        <div class="why-visible-grid">
+          <div class="why-card">
+            <div class="why-icon">☀️</div>
+            <h4>1. Corpo Nero &amp; Legge di Wien</h4>
+            <p>
+              Qualsiasi corpo a temperatura $T$ emette uno spettro continuo descritto dalla <strong>Legge di Planck</strong>:
+              <br><code style="font-size: 0.8rem; color: #a5b4fc;">B(&nu;,T) = (2h&nu;³/c²) / (e^(h&nu;/kT) - 1)</code>.
+              <br>Per una stella con fotosfera a $T \approx 5778\text{ K}$, la <em>Legge di Wien</em> fissa il picco massimo proprio a <strong>500 nm</strong>.
+            </p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-icon">⚛️</div>
+            <h4>2. Serie di Balmer dell'Idrogeno</h4>
+            <p>
+              I salti quantici degli elettroni dell'idrogeno al livello $n=2$ ricadono esattamente nella banda visibile:
+              <br><span class="balmer-badge" style="background: rgba(255,0,0,0.25); color: #ff6666;">H-&alpha; 656.3 nm</span> (Rosso, $3 \to 2$)
+              <br><span class="balmer-badge" style="background: rgba(0,212,255,0.25); color: #38bdf8;">H-&beta; 486.1 nm</span> (Ciano, $4 \to 2$)
+              <br><span class="balmer-badge" style="background: rgba(79,70,229,0.25); color: #818cf8;">H-&gamma; 434.0 nm</span> (Blu, $5 \to 2$)
+              <br><span class="balmer-badge" style="background: rgba(147,51,234,0.25); color: #c084fc;">H-&delta; 410.2 nm</span> (Violetto, $6 \to 2$)
+            </p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-icon">⚡</div>
+            <h4>3. La Soglia Energetica Elettronica</h4>
+            <p>
+              Con energie tra <strong>1.65 e 3.26 eV</strong>, i fotoni del visibile possiedono l'energia perfetta per perturbare gli elettroni degli orbitali di legame 
+              senza ionizzare l'atomo (come fanno i raggi UV a &gt; 4 eV) e senza disperdersi unicamente in moti vibro-rotazionali termici (come gli infrarossi).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 4: DISPERSIONE OTTICA & PRISMA DARK SIDE OF THE MOON -->
+    <section id="prisma" class="interactive-card dark-side-container">
+      <div class="section-header">
+        <span class="section-tag" style="color: #ff3366;">Ottica Geometrica &amp; Iconografia Cult</span>
+        <h2 class="section-title">4. Dispersione Spettrale: Il Prisma di Newton &amp; "The Dark Side of the Moon"</h2>
+        <p class="section-subtitle">
+          Nel 1666 Isaac Newton compì l'<em>experimentum crucis</em> rifrangendo un fascio di luce bianca con un prisma triangolare, 
+          dimostrando che il bianco è la sovrapposizione di tutti i colori dello spettro. Nel 1973, lo studio Hipgnosis immortalò questo fenomeno 
+          sulla leggendaria copertina dell'album dei <strong>Pink Floyd</strong>.
+        </p>
+      </div>
+
+      <div class="prism-simulator">
+        <!-- Canvas Dark Side 2D -->
+        <div class="canvas-container dark-side-container">
+          <canvas id="prismCanvas"></canvas>
+          <div class="canvas-overlay-hints">
+            <div class="overlay-badge" style="background: rgba(0,0,0,0.85); border-color: rgba(255,255,255,0.2);">
+              <span class="badge-dot" style="background: #ffffff; box-shadow: 0 0 8px #fff;"></span> Fascio di Luce Bianca Collimata
+            </div>
+            <div class="overlay-badge" style="background: rgba(0,0,0,0.85); border-color: rgba(255,255,255,0.2);">
+              <span class="badge-dot" style="background: #ff002b;"></span> Rosso (deviazione minore) &rarr; Violetto (deviazione maggiore)
+            </div>
+          </div>
+        </div>
+
+        <!-- Controlli Prisma Dark Side -->
+        <div class="control-panel" style="background: rgba(8, 10, 18, 0.95);">
+          <div class="control-group">
+            <div class="control-label">
+              <span>Angolo Fascio Incidente</span>
+              <span class="control-value" id="prismAngleVal">36°</span>
+            </div>
+            <input type="range" id="prismAngle" min="20" max="55" value="36" step="1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Dispersione / Ampiezza Ventaglio</span>
+              <span class="control-value" id="prismSpreadVal">1.0x</span>
+            </div>
+            <input type="range" id="prismSpread" min="0.4" max="2.2" value="1.0" step="0.1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Intensità Bagliore Ottico (Glow)</span>
+              <span class="control-value" id="prismGlowVal">100%</span>
+            </div>
+            <input type="range" id="prismGlow" min="0.2" max="2.0" value="1.0" step="0.1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Stile di Rendering</span>
+            </div>
+            <select id="prismMode" style="background: #151b2e; color: #fff; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.6rem; font-size: 0.88rem; outline: none;">
+              <option value="pinkfloyd" selected>🌑 The Dark Side of the Moon (Nastro a 6 Colori)</option>
+              <option value="physics">🔬 Simulazione di Snell &amp; Cauchy (Raggi Fisici)</option>
+            </select>
+          </div>
+
+          <div class="button-row" style="margin-top: 0.4rem;">
+            <button class="btn btn-pinkfloyd" id="btnPresetDarkSide">🌑 Preset Dark Side of the Moon</button>
+          </div>
+
+          <div class="formula-card" style="margin-top: 0.5rem;">
+            <div><strong>Dispersione Cromatica di Cauchy:</strong></div>
+            <div>n(&lambda;) = A + B / &lambda;²</div>
+            <div style="margin-top: 0.2rem;"><strong>Legge di Snell alle interfacce:</strong></div>
+            <div>n₁ &middot; sin(&theta;₁) = n₂(&lambda;) &middot; sin(&theta;₂)</div>
+            <div class="comment">Poiché &lambda;<sub>rosso</sub> (700 nm) &gt; &lambda;<sub>violetto</sub> (400 nm), ne deriva n<sub>rosso</sub> &lt; n<sub>violetto</sub>: il violetto rallenta di più nel vetro e subisce una rifrazione angolare maggiore.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 5: EFFETTO FOTOELETTRICO ED ENERGIA DEI QUANTI -->
+    <section id="fotoelettrico" class="interactive-card">
+      <div class="section-header">
+        <span class="section-tag" style="color: var(--color-magnetic);">Fisica Quantistica Fondamentale</span>
+        <h2 class="section-title">5. Quanti di Luce &amp; L'Effetto Fotoelettrico (Einstein 1905)</h2>
+        <p class="section-subtitle">
+          L'effetto fotoelettrico fu la prova sperimentale decisiva che la luce è composta da pacchetti quantizzati di energia ($E = h\nu$), i <strong>fotoni</strong>. 
+          Un elettrone viene estratto dal catodo metallico istantaneamente solo se l'energia del singolo fotone supera il lavoro di estrazione (&Phi;). 
+          Cambia la lunghezza d'onda con lo slider della Sezione 3 o seleziona un metallo qui sotto.
+        </p>
+      </div>
+
+      <div class="photoelectric-simulator">
+        <!-- Canvas Camera a Vuoto Fotoelettrica -->
+        <div class="canvas-container">
+          <canvas id="photoelectricCanvas"></canvas>
+          <div class="canvas-overlay-hints">
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #94a3b8;"></span> Catodo Metallico (Emettitore)
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #00f7ff;"></span> Fotoelettroni emessi (e⁻)
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #38bdf8;"></span> Anodo Raccoglitore (+)
+            </div>
+          </div>
+        </div>
+
+        <!-- Controlli Fotoelettrico -->
+        <div class="control-panel">
+          <div class="control-group">
+            <div class="control-label">
+              <span>Metallo del Catodo</span>
+            </div>
+            <select id="photoMetalSelect" style="background: #161c30; color: #fff; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.6rem; font-size: 0.88rem; outline: none;">
+              <option value="cesium" selected>Cesio (Cs) — Φ = 2.14 eV</option>
+              <option value="potassium">Potassio (K) — Φ = 2.30 eV</option>
+              <option value="sodium">Sodio (Na) — Φ = 2.36 eV</option>
+              <option value="calcium">Calcio (Ca) — Φ = 2.87 eV</option>
+              <option value="zinc">Zinco (Zn) — Φ = 4.30 eV (Richiede UV)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Potenziale Ritardante Frenante (V)</span>
+              <span class="control-value" id="retardingVoltVal">0.00 V</span>
+            </div>
+            <input type="range" id="retardingVolt" min="0.0" max="2.5" value="0.0" step="0.05">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Intensità Sorgente Luminosa</span>
+              <span class="control-value" id="photoIntensityVal">100%</span>
+            </div>
+            <input type="range" id="photoIntensity" min="0.2" max="1.5" value="1.0" step="0.1">
+          </div>
+
+          <div id="peEmissionStatus" class="emission-status-pill emission-yes">
+            ⚡ FOTOEMISSIONE ATTIVA
+          </div>
+
+          <div class="metal-spec-box">
+            <div class="metal-spec-item">
+              <span class="label">Energia Fotone Incidente (h&nu;):</span>
+              <span class="val text-propagation" id="pePhotonEnergy">2.330 eV</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Lavoro di Estrazione (&Phi;):</span>
+              <span class="val text-electric" id="peWorkFunction">2.14 eV</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Soglia Massima (&lambda;₀ = hc/&Phi;):</span>
+              <span class="val" id="peThresholdWl">579.4 nm</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Energia Cinetica Massima (K<sub>max</sub>):</span>
+              <span class="val text-magnetic" id="peKineticEnergy">0.190 eV</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Potenziale d'Arresto (V₀ = K/e):</span>
+              <span class="val" id="peStoppingVolt">0.190 V</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Velocità Massima Elettrone (v):</span>
+              <span class="val" id="peMaxVelocity">258 km/s</span>
+            </div>
+          </div>
+
+          <p id="peMetalDesc" style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.5;">
+            Metallo alcalino con bassissimo lavoro d'estrazione: emette elettroni già con luce verde, blu e violetta!
+          </p>
+        </div>
+      </div>
+
+      <!-- Spiegazione Equazione di Einstein -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+        <div class="info-box electric">
+          <strong>L'Equazione di Einstein (Premio Nobel 1921):</strong>
+          $$K_{\max} = h\nu - \Phi = e \cdot V_{\text{arresto}}$$
+          L'energia cinetica degli elettroni emessi dipende unicamente dalla <strong>frequenza $\nu$</strong> della luce, non dall'intensità. Aumentare l'intensità della luce aumenta solo il numero di fotoni al secondo (quindi la fotocorrente), ma non l'energia dei singoli elettroni.
+        </div>
+        <div class="info-box magnetic">
+          <strong>Perché il Visibile è Fondamentale:</strong>
+          Nei metalli alcalini come Cesio, Potassio e Sodio, il lavoro di estrazione $\Phi$ è compreso tra $2.1$ e $2.4\text{ eV}$. 
+          Questo significa che la luce visibile si trova esattamente alla **soglia fotoelettrica**: la luce rossa ($1.7\text{ eV}$) non può estrarre alcun elettrone qualunque sia la sua intensità, mentre la luce blu e violetta ($>2.5\text{ eV}$) li strappa istantaneamente!
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer con Formule di Sintesi -->
+  <footer class="site-footer">
+    <div style="max-width: 900px; margin: 0 auto;">
+      <h3 style="color: var(--text-main); font-size: 1.25rem; margin-bottom: 0.5rem;">Compendio delle Equazioni della Fisica della Radiazione</h3>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">
+        Le leggi cardine che legano l'elettrodinamica classica di Maxwell, l'ottica geometrica/ondulatoria e la meccanica quantistica dei fotoni.
+      </p>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Legge / Principio</th>
+            <th>Formula Matematica</th>
+            <th>Significato Fisico</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Relazione Onda-Frequenza</td>
+            <td class="code">c = &lambda; &times; &nu;</td>
+            <td>La velocità della luce è il prodotto di lunghezza d'onda e frequenza</td>
+          </tr>
+          <tr>
+            <td>Quanti di Luce (Planck-Einstein)</td>
+            <td class="code">E = h &times; &nu; = hc / &lambda;</td>
+            <td>L'energia di un singolo fotone è proporzionale alla frequenza</td>
+          </tr>
+          <tr>
+            <td>Effetto Fotoelettrico (Einstein)</td>
+            <td class="code">K_max = h&nu; - &Phi; = e &middot; V₀</td>
+            <td>Bilancio energetico per l'estrazione quantistica di un elettrone da un metallo</td>
+          </tr>
+          <tr>
+            <td>Legge di Snell-Cartesio</td>
+            <td class="code">n₁ &middot; sin(&theta;₁) = n₂ &middot; sin(&theta;₂)</td>
+            <td>Rifrazione ottica del fronte d'onda all'interfaccia tra due mezzi dielettrici</td>
+          </tr>
+          <tr>
+            <td>Dispersione Cromatica di Cauchy</td>
+            <td class="code">n(&lambda;) = A + B / &lambda;²</td>
+            <td>L'indice di rifrazione del vetro cresce per lunghezze d'onda più corte (violetto)</td>
+          </tr>
+          <tr>
+            <td>Spostamento di Wien (Corpo Nero)</td>
+            <td class="code">&lambda;_max &middot; T = 2.898 &times; 10⁻³ m&middot;K</td>
+            <td>La lunghezza d'onda di picco termico è inversamente proporzionale alla temperatura</td>
+          </tr>
+          <tr>
+            <td>Vettore di Poynting</td>
+            <td class="code">&vec;S = (1/&mu;₀) &vec;E &times; &vec;B</td>
+            <td>Densità di flusso di potenza dell'onda elettromagnetica (W/m²)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-dim);">
+        Progetto Didattico sul Campo Elettromagnetico &bull; Fisica Pura &amp; Ottica Quantistica &bull; Ispirato a Newton (1666), Maxwell (1865), Einstein (1905) e Pink Floyd (1973).
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
