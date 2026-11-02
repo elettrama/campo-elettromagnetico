@@ -438,17 +438,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 15px rgba(124, 77, 255, 0.3);
 }
 
-.btn-pinkfloyd {
-  background: linear-gradient(135deg, rgba(255, 0, 80, 0.2), rgba(0, 212, 255, 0.2));
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  font-weight: 700;
+.btn-accent {
+  background: rgba(124, 77, 255, 0.25);
+  border: 1px solid rgba(124, 77, 255, 0.4);
+  color: #c7b0ff;
+  font-weight: 600;
 }
 
-.btn-pinkfloyd:hover {
-  background: linear-gradient(135deg, rgba(255, 0, 80, 0.4), rgba(0, 212, 255, 0.4));
-  border-color: #fff;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+.btn-accent:hover {
+  background: rgba(124, 77, 255, 0.4);
+  border-color: #c7b0ff;
+  box-shadow: 0 0 15px rgba(124, 77, 255, 0.35);
 }
 
 .toggle-switch-label {
@@ -779,16 +779,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-top: 0.25rem;
 }
 
-/* PRISM DARK SIDE SECTION */
-.dark-side-container {
-  background: #010204 !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), inset 0 0 90px rgba(0, 0, 0, 1) !important;
-}
-
+/* PRISM SECTION */
 .prism-simulator {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 340px;
   gap: 1.75rem;
 }
 

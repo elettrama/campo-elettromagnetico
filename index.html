@@ -41,7 +41,7 @@
       <a href="#anatomia">Onda 3D</a>
       <a href="#spettro">Spettro Completo</a>
       <a href="#visibile">Focus Visibile</a>
-      <a href="#prisma">Prisma Dark Side</a>
+      <a href="#prisma">Prisma di Newton</a>
       <a href="#fotoelettrico">Effetto Fotoelettrico</a>
     </nav>
   </header>
@@ -372,78 +372,92 @@
       </div>
     </section>
 
-    <!-- SEZIONE 4: DISPERSIONE OTTICA & PRISMA DARK SIDE OF THE MOON -->
-    <section id="prisma" class="interactive-card dark-side-container">
+    <!-- SEZIONE 4: DISPERSIONE OTTICA & PRISMA DI NEWTON -->
+    <section id="prisma" class="interactive-card">
       <div class="section-header">
-        <span class="section-tag" style="color: #ff3366;">Ottica Geometrica &amp; Iconografia Cult</span>
-        <h2 class="section-title">4. Dispersione Spettrale: Il Prisma di Newton &amp; "The Dark Side of the Moon"</h2>
+        <span class="section-tag" style="color: #ff3366;">Ottica Geometrica &amp; Dispersione</span>
+        <h2 class="section-title">4. Dispersione Cromatica &amp; Riflessione Totale nel Prisma di Newton</h2>
         <p class="section-subtitle">
-          Nel 1666 Isaac Newton compì l'<em>experimentum crucis</em> rifrangendo un fascio di luce bianca con un prisma triangolare, 
-          dimostrando che il bianco è la sovrapposizione di tutti i colori dello spettro. Nel 1973, lo studio Hipgnosis immortalò questo fenomeno 
-          sulla leggendaria copertina dell'album dei <strong>Pink Floyd</strong>.
+          Nel celebre trattato <em>Opticks</em> (1704), Isaac Newton dimostrò sperimentalmente che la luce bianca è policromatica. 
+          Nel prisma, ciascuna lunghezza d'onda subisce due rifrazioni governate rigorosamente dalla <strong>Legge di Snell-Cartesio</strong>. 
+          Variando l'angolo di incidenza $\theta_1$ o aumentando l'indice di rifrazione $n$, l'angolo alla seconda interfaccia supera l'angolo critico $\theta_c$, 
+          innescando il fenomeno della <strong>Riflessione Totale Interna (TIR)</strong>.
         </p>
       </div>
 
       <div class="prism-simulator">
-        <!-- Canvas Dark Side 2D -->
-        <div class="canvas-container dark-side-container">
+        <!-- Canvas Prisma 2D -->
+        <div class="canvas-container">
           <canvas id="prismCanvas"></canvas>
           <div class="canvas-overlay-hints">
-            <div class="overlay-badge" style="background: rgba(0,0,0,0.85); border-color: rgba(255,255,255,0.2);">
-              <span class="badge-dot" style="background: #ffffff; box-shadow: 0 0 8px #fff;"></span> Fascio di Luce Bianca Collimata
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #ffffff; box-shadow: 0 0 8px #fff;"></span> Fascio di Luce Bianca Incidente
             </div>
-            <div class="overlay-badge" style="background: rgba(0,0,0,0.85); border-color: rgba(255,255,255,0.2);">
-              <span class="badge-dot" style="background: #ff002b;"></span> Rosso (deviazione minima) $\to$ Violetto (deviazione massima)
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #ff1111;"></span> Rosso: deviazione angolare minore
+            </div>
+            <div class="overlay-badge">
+              <span class="badge-dot" style="background: #8b00ff;"></span> Violetto: deviazione angolare maggiore
             </div>
           </div>
         </div>
 
-        <!-- Controlli Prisma Dark Side -->
-        <div class="control-panel" style="background: rgba(8, 10, 18, 0.95);">
+        <!-- Controlli Prisma di Newton -->
+        <div class="control-panel">
           <div class="control-group">
             <div class="control-label">
-              <span>Angolo Fascio Incidente</span>
-              <span class="control-value" id="prismAngleVal">36°</span>
+              <span>Angolo di Incidenza ($\theta_1$)</span>
+              <span class="control-value" id="prismAngleVal">48.0°</span>
             </div>
-            <input type="range" id="prismAngle" min="20" max="55" value="36" step="1">
-          </div>
-
-          <div class="control-group">
-            <div class="control-label">
-              <span>Dispersione / Ampiezza Ventaglio</span>
-              <span class="control-value" id="prismSpreadVal">1.0x</span>
-            </div>
-            <input type="range" id="prismSpread" min="0.4" max="2.2" value="1.0" step="0.1">
+            <input type="range" id="prismAngle" min="15" max="75" value="48" step="0.5">
           </div>
 
           <div class="control-group">
             <div class="control-label">
-              <span>Intensità Bagliore Ottico (Glow)</span>
-              <span class="control-value" id="prismGlowVal">100%</span>
+              <span>Indice di Rifrazione Base ($n$)</span>
+              <span class="control-value" id="prismIndexVal">1.52</span>
             </div>
-            <input type="range" id="prismGlow" min="0.2" max="2.0" value="1.0" step="0.1">
+            <input type="range" id="prismIndex" min="1.15" max="2.60" value="1.52" step="0.01">
           </div>
 
           <div class="control-group">
             <div class="control-label">
-              <span>Stile di Rendering</span>
+              <span>Dispersione di Cauchy ($B$ in $\mu\text{m}^2$)</span>
+              <span class="control-value" id="prismCauchyBVal">0.012</span>
             </div>
-            <select id="prismMode" style="background: #151b2e; color: #fff; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.6rem; font-size: 0.88rem; outline: none;">
-              <option value="pinkfloyd" selected>🌑 The Dark Side of the Moon (Nastro a 6 Colori)</option>
-              <option value="physics">🔬 Simulazione di Snell &amp; Cauchy (Raggi Fisici)</option>
-            </select>
+            <input type="range" id="prismCauchyB" min="0.002" max="0.035" value="0.012" step="0.001">
           </div>
 
-          <div class="button-row" style="margin-top: 0.4rem;">
-            <button class="btn btn-pinkfloyd" id="btnPresetDarkSide">🌑 Preset Dark Side of the Moon</button>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Materiali Ottici di Riferimento:</div>
+          <div class="button-row">
+            <button class="btn" id="btnPresetWater">💧 Acqua (1.33)</button>
+            <button class="btn" id="btnPresetCrown">🔬 Vetro Crown (1.52)</button>
+            <button class="btn" id="btnPresetFlint">🧪 Vetro Flint (1.66)</button>
+            <button class="btn" id="btnPresetDiamond" style="border-color: #38bdf8; color: #38bdf8;">💎 Diamante (2.42 - TIR)</button>
           </div>
 
-          <div class="formula-card" style="margin-top: 0.5rem;">
-            <div><strong>Dispersione Cromatica di Cauchy:</strong></div>
-            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$n(\lambda) = A + \frac{B}{\lambda^2}$$</div>
-            <div><strong>Legge di Snell alle interfacce:</strong></div>
+          <!-- Badge dinamico dello stato ottico -->
+          <div id="prismStatusPill" class="emission-status-pill emission-yes" style="margin-top: 0.5rem;">
+            🌈 RIFRAZIONE DI SNELL &amp; DISPERSIONE SPETTRALE ATTIVA
+          </div>
+
+          <div class="metal-spec-box" style="margin-top: 0.3rem;">
+            <div class="metal-spec-item">
+              <span class="label">Angolo Limite di Riflessione Totale ($\theta_c$):</span>
+              <span class="val text-propagation" id="prismCriticalAngle">41.1°</span>
+            </div>
+            <div class="metal-spec-item">
+              <span class="label">Deviazione Angolare Media ($\delta$):</span>
+              <span class="val text-magnetic" id="prismDevAngle">39.0°</span>
+            </div>
+          </div>
+
+          <div class="formula-card" style="margin-top: 0.4rem;">
+            <div><strong>Legge di Snell-Cartesio:</strong></div>
             <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$n_1 \sin(\theta_1) = n_2(\lambda) \sin(\theta_2)$$</div>
-            <div class="comment">Poiché $\lambda_{\text{rosso}} > \lambda_{\text{violetto}}$, si ha $n_{\text{rosso}} < n_{\text{violetto}}$: il violetto viaggia più lentamente nel dielettrico e viene rifratto ad un angolo maggiore.</div>
+            <div><strong>Condizione di Riflessione Totale Interna:</strong></div>
+            <div style="font-size: 0.92rem; margin: 0.15rem 0;">$$\sin(\theta_3) > \frac{n_{\text{aria}}}{n(\lambda)} \implies \theta_3 > \theta_c = \arcsin\left(\frac{1}{n}\right)$$</div>
+            <div class="comment">Se l'angolo di incidenza interno $\theta_3$ supera l'angolo critico $\theta_c$, la luce non fuoriesce dal prisma ma subisce riflessione speculare al 100%.</div>
           </div>
         </div>
       </div>
@@ -619,7 +633,7 @@
       </table>
 
       <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-dim);">
-        Progetto Didattico sul Campo Elettromagnetico &bull; Fisica Pura &amp; Ottica Quantistica &bull; Ispirato a Newton (1666), Maxwell (1865), Einstein (1905) e Pink Floyd (1973).
+        Progetto Didattico sul Campo Elettromagnetico &bull; Fisica Pura &amp; Ottica Quantistica &bull; Ispirato a Newton (1666), Snell (1621), Maxwell (1865) ed Einstein (1905).
       </p>
     </div>
   </footer>

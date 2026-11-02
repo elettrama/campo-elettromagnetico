@@ -1,6 +1,6 @@
 # 🌌 Il Campo Elettromagnetico & Lo Spettro Visibile
 
-Un'applicazione web interattiva, scientifica ed esteticamente moderna dedicata all'**elettrodinamica classica**, all'**ottica ondulatoria** e alla **meccanica quantistica dei fotoni**, con un focus sulla **luce visibile**, sulla **dispersione cromatica del prisma** (ispirata alla copertina iconica di *The Dark Side of the Moon* dei Pink Floyd) e sull'**effetto fotoelettrico di Einstein**.
+Un'applicazione web interattiva, scientifica ed esteticamente moderna dedicata all'**elettrodinamica classica**, all'**ottica ondulatoria** e alla **meccanica quantistica dei fotoni**, con un focus sulla **luce visibile**, sulla **dispersione cromatica e riflessione totale del prisma di Newton** e sull'**effetto fotoelettrico di Einstein**.
 
 ---
 
@@ -9,7 +9,7 @@ Un'applicazione web interattiva, scientifica ed esteticamente moderna dedicata a
 ### 1. 📡 Simulatore 3D dell'Onda Elettromagnetica (Canvas Prospettico)
 - Proiezione tridimensionale con orbita interattiva (rotazione 3D via mouse o touch).
 - Visualizzazione del **Campo Elettrico $\vec{E}$** (rosso) e del **Campo Magnetico $\vec{B}$** (blu) mutuamente ortogonali e in fase.
-- Vettori istantanei e **Vettore di Poynting $\vec{S} = \frac{1}{\mu_0} \vec{E} \times \vec{B}$** che illustra la densità di flusso di energia radiante.
+- Vettori istantanei e **Vettore di Poynting $\vec{S} = \frac{1}{\mu_0} (\vec{E} \times \vec{B})$** che illustra la densità di flusso di energia radiante.
 - Regolazione in tempo reale di lunghezza d'onda $\lambda$ e velocità di propagazione $c$.
 
 ### 2. 🔭 Esploratore dello Spettro Elettromagnetico Completo
@@ -25,15 +25,15 @@ Un'applicazione web interattiva, scientifica ed esteticamente moderna dedicata a
   - Vettore d'onda $k = 2\pi / \lambda$ in $\text{rad/m}$
 - Approfondimento di fisica pura: Radiazione di corpo nero (Planck & Wien a $5778\text{ K}$) e le 4 righe spettrali visibili della **Serie di Balmer dell'idrogeno** ($H_\alpha, H_\beta, H_\gamma, H_\delta$).
 
-### 4. 🌑 Dispersione Spettrale: Il Prisma & "The Dark Side of the Moon"
-- Simulazione ottica su fondo nero cosmico ispirata all'artwork di Storm Thorgerson (Hipgnosis) per l'album dei **Pink Floyd** (1973).
-- Fascio incidente bianco collimato ad alta intensità con effetto *optical glow*.
-- Dispersione interna e rifrazione alle interfacce aria-vetro secondo la **Legge di Snell** e la **Formula di Cauchy**:
-  $$n(\lambda) = A + \frac{B}{\lambda^2}$$
-- Modalità di visualizzazione:
-  - **The Dark Side of the Moon**: Nastro iconico a 6 bande cromatiche continue e sature (Rosso, Arancione, Giallo, Verde, Blu, Violetto).
-  - **Simulazione Fisica**: Tracciamento dei singoli raggi di rifrazione spettrale.
-- Regolazione dell'angolo d'incidenza, apertura del ventaglio e intensità del bagliore.
+### 4. 🔬 Dispersione Spettrale & Riflessione Totale Interna (Prisma di Newton)
+- Ray tracing vettoriale rigoroso basato sulla **Legge di Snell-Cartesio**:
+  $$n_1 \sin(\theta_1) = n_2(\lambda) \sin(\theta_2)$$
+- Formula di dispersione di Cauchy:
+  $$n(\lambda) = n_{\text{base}} + \frac{B}{\lambda^2}$$
+- Regolazione continua dell'angolo di incidenza $\theta_1$ ($15^\circ - 75^\circ$) e dell'indice di rifrazione base $n$ ($1.15 - 2.60$).
+- Simulazione della **Riflessione Totale Interna (TIR)** quando l'angolo alla seconda interfaccia supera l'angolo critico:
+  $$\sin(\theta_3) > \frac{n_{\text{aria}}}{n(\lambda)} \implies \theta_3 > \theta_c = \arcsin\left(\frac{1}{n}\right)$$
+- Preset ottici istantanei: Acqua ($n=1.33$), Vetro Crown ($n=1.52$), Vetro Flint ($n=1.66$), Diamante ($n=2.42$ con TIR).
 
 ### 5. ⚡ Quanti di Luce & Effetto Fotoelettrico (Einstein 1905)
 - Simulatore di cella fototubo a vuoto con catodo emettitore e anodo.
